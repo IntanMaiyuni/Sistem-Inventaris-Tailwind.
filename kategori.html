@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InventarisPro - Kelola Kategori</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F4F7FE; color: #1B2559; }
+        .card-shadow { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); }
+        .main-content { margin-left: 256px; width: calc(100% - 256px); transition: all 0.3s; }
+        @media (max-width: 768px) { .main-content { margin-left: 0; width: 100%; } }
+        
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-edit { background-color: #EEF2FF; color: #5D5FEF; }
+        .btn-edit:hover { background-color: #5D5FEF; color: white; transform: translateY(-2px); }
+        .btn-delete { background-color: #FFF1F2; color: #F43F5E; }
+        .btn-delete:hover { background-color: #F43F5E; color: white; transform: translateY(-2px); }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <aside class="w-64 bg-[#5D5FEF] text-white fixed h-full p-6 flex flex-col z-50">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="bg-white/20 p-2 rounded-lg text-xl">📦</div>
+            <h1 class="text-xl font-bold tracking-tight">Inventaris</h1>
+        </div>
+        <nav class="space-y-4 flex-1">
+            <a href="index.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>📊</span> Dashboard</a>
+            <a href="kategori.html" class="flex items-center gap-3 p-3 bg-white/20 rounded-xl transition font-bold"><span>📁</span> Kategori</a>
+            <a href="barang.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>📦</span> Barang</a>
+            <a href="supplier.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>🚚</span> Supplier</a>
+            
+            <div class="mt-auto pt-6 border-t border-white/10">
+                <button onclick="handleLogout()" class="flex items-center gap-3 p-3 w-full hover:bg-red-500/20 rounded-xl transition text-white/70 text-left font-bold">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main-content p-8 md:p-12">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h2 class="text-3xl font-extrabold text-[#1B2559]">Manajemen Kategori</h2>
+                <p class="text-gray-400 text-sm mt-1">Kelompokkan barang untuk pengorganisasian yang lebih baik.</p>
+            </div>
+            <div class="flex items-center gap-4 bg-white p-2 rounded-full shadow-sm px-4 border border-gray-50">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[10px] font-bold text-[#1B2559]">Admin User</p>
+                    <p class="text-[9px] text-green-500 font-medium">Online</p>
+                </div>
+                <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">A</div>
+            </div>
+        </header>
+
+        <div class="bg-white p-8 rounded-[30px] card-shadow mb-8 max-w-2xl border border-white">
+            <h3 id="form-title" class="font-bold text-[#1B2559] mb-4 flex items-center gap-2 uppercase text-xs tracking-wider">
+                <span class="material-icons-round text-indigo-500">add_circle</span> Tambah Kategori Baru
+            </h3>
+            <form onsubmit="simpanKategori(event)" class="flex gap-3">
+                <input id="input-nama-kategori" type="text" placeholder="Contoh: Elektronik, Makanan..." required
+                    class="bg-gray-50 border-none rounded-xl p-4 w-full outline-none focus:ring-2 focus:ring-indigo-400 text-[#1B2559] font-medium transition">
+                <button type="submit" id="btn-submit" class="bg-[#5D5FEF] text-white px-8 rounded-xl font-bold hover:bg-indigo-600 transition shadow-lg shadow-indigo-100 whitespace-nowrap">
+                    Simpan
+                </button>
+                <button type="button" id="btn-batal" onclick="resetForm()" class="hidden bg-gray-100 text-gray-500 px-6 rounded-xl font-bold hover:bg-gray-200 transition">
+                    Batal
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-[32px] card-shadow overflow-hidden max-w-4xl border border-white">
+            <div class="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
+                <h3 class="font-bold text-[#1B2559]">Daftar Kategori</h3>
+                <span id="total-kategori" class="text-[10px] bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-black">0 TOTAL</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-[11px] text-gray-400 uppercase tracking-widest font-bold bg-gray-50/50">
+                            <th class="px-8 py-5 w-24">Urutan</th>
+                            <th class="px-8 py-5">Nama Kategori</th>
+                            <th class="px-8 py-5 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-kategori" class="divide-y divide-gray-50 text-sm font-semibold">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- 1. SISTEM KEAMANAN & LOGOUT ---
+        function checkAuth() {
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+            }
+        }
+        checkAuth();
+
+        function handleLogout() {
+            if(confirm("Apakah Anda yakin ingin keluar?")) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('userActive');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // --- 2. LOGIKA MANAJEMEN KATEGORI ---
+        let dataKategori = JSON.parse(localStorage.getItem('kategori')) || [];
+        let editIndex = null;
+
+        const inputNama = document.getElementById('input-nama-kategori');
+        const formTitle = document.getElementById('form-title');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnBatal = document.getElementById('btn-batal');
+        const totalBadge = document.getElementById('total-kategori');
+
+        function renderKategori() {
+            const tbody = document.getElementById('tabel-kategori');
+            totalBadge.innerText = `${dataKategori.length} TOTAL`;
+            
+            if (dataKategori.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="px-8 py-16 text-center text-gray-300 italic">Belum ada kategori yang terdaftar.</td></tr>`;
+            } else {
+                tbody.innerHTML = dataKategori.map((item, index) => `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-8 py-6">
+                            <span class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 text-xs font-black">
+                                ${String(index + 1).padStart(2, '0')}
+                            </span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-3 text-[#1B2559] font-bold text-base">
+                                ${item.nama}
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex justify-end gap-3">
+                                <button onclick="siapkanEdit(${index})" class="btn-icon btn-edit" title="Edit">
+                                    <span class="material-icons-round text-sm">edit</span>
+                                </button>
+                                <button onclick="hapusKategori(${index})" class="btn-icon btn-delete" title="Hapus">
+                                    <span class="material-icons-round text-sm">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            localStorage.setItem('kategori', JSON.stringify(dataKategori));
+        }
+
+        function simpanKategori(e) {
+            e.preventDefault();
+            const nama = inputNama.value.trim();
+            
+            if (editIndex !== null) {
+                dataKategori[editIndex].nama = nama;
+                resetForm();
+            } else {
+                dataKategori.push({ nama });
+            }
+            
+            inputNama.value = '';
+            renderKategori();
+        }
+
+        function siapkanEdit(index) {
+            editIndex = index;
+            inputNama.value = dataKategori[index].nama;
+            formTitle.innerHTML = `<span class="material-icons-round text-amber-500">edit</span> Edit Kategori`;
+            btnSubmit.innerText = "Perbarui";
+            btnSubmit.classList.replace('bg-[#5D5FEF]', 'bg-amber-500');
+            btnBatal.classList.remove('hidden');
+            inputNama.focus();
+        }
+
+        function resetForm() {
+            editIndex = null;
+            inputNama.value = '';
+            formTitle.innerHTML = `<span class="material-icons-round text-indigo-500">add_circle</span> Tambah Kategori Baru`;
+            btnSubmit.innerText = "Simpan";
+            btnSubmit.classList.replace('bg-amber-500', 'bg-[#5D5FEF]');
+            btnBatal.classList.add('hidden');
+        }
+
+        function hapusKategori(index) {
+            if (confirm(`Hapus kategori "${dataKategori[index].nama}"?`)) {
+                dataKategori.splice(index, 1);
+                renderKategori();
+                if(editIndex === index) resetForm();
+            }
+        }
+
+        // Render data saat pertama kali buka halaman
+        renderKategori();
+    </script>
+</body>
+</html>

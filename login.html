@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InventarisPro - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F4F7FE; color: #1B2559; }
+        .auth-card { background: white; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="auth-card w-full max-w-md p-10">
+        <div class="text-center mb-10">
+            <div class="inline-block bg-[#5D5FEF] p-3 rounded-2xl mb-4 text-2xl text-white">📦</div>
+            <h2 class="text-3xl font-extrabold text-[#1B2559]">Selamat Datang</h2>
+            <p class="text-gray-400 mt-2 text-sm font-medium">Masukkan email dan password Anda</p>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="space-y-6">
+            <div>
+                <label class="text-xs font-bold text-gray-400 ml-1 uppercase">Email</label>
+                <input id="login-email" type="email" required class="w-full bg-[#F4F7FE] rounded-xl p-4 mt-2 outline-none border border-transparent focus:border-[#5D5FEF] font-semibold" placeholder="nama@email.com">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-400 ml-1 uppercase">Password</label>
+                <input id="login-password" type="password" required class="w-full bg-[#F4F7FE] rounded-xl p-4 mt-2 outline-none border border-transparent focus:border-[#5D5FEF] font-semibold" placeholder="••••••••">
+            </div>
+            <button type="submit" class="w-full bg-[#5D5FEF] text-white p-4 rounded-xl font-bold hover:bg-indigo-600 transition shadow-lg shadow-indigo-100">Masuk</button>
+        </form>
+
+        <p class="text-center mt-8 text-sm text-gray-400 font-semibold">
+            Belum punya akun? <a href="register.html" class="text-[#5D5FEF] hover:underline">Daftar sekarang</a>
+        </p>
+    </div>
+
+    <script>
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === pass);
+
+            if (user) {
+                // Simpan data login di SessionStorage agar hilang saat browser ditutup
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('userActive', JSON.stringify(user));
+                window.location.href = 'index.html'; // Pindah ke Dashboard
+            } else {
+                alert('Email atau Password salah!');
+            }
+        }
+    </script>
+</body>
+</html>

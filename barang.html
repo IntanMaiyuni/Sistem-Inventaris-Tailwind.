@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InventarisPro - Kelola Barang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F4F7FE; color: #1B2559; }
+        .card-shadow { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); }
+        .main-content { margin-left: 256px; width: calc(100% - 256px); transition: all 0.3s; }
+        @media (max-width: 768px) { .main-content { margin-left: 0; width: 100%; } }
+        
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-edit { background-color: #EEF2FF; color: #5D5FEF; }
+        .btn-edit:hover { background-color: #5D5FEF; color: white; transform: translateY(-2px); }
+        .btn-delete { background-color: #FFF1F2; color: #F43F5E; }
+        .btn-delete:hover { background-color: #F43F5E; color: white; transform: translateY(-2px); }
+
+        .modal { transition: all 0.2s ease-out; opacity: 0; pointer-events: none; transform: scale(0.95); }
+        .modal.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <aside class="w-64 bg-[#5D5FEF] text-white fixed h-full p-6 flex flex-col z-50">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="bg-white/20 p-2 rounded-lg text-xl">📦</div>
+            <h1 class="text-xl font-bold tracking-tight">Inventaris</h1>
+        </div>
+        <nav class="space-y-4 flex-1">
+            <a href="index.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>📊</span> Dashboard</a>
+            <a href="kategori.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>📁</span> Kategori</a>
+            <a href="barang.html" class="flex items-center gap-3 p-3 bg-white/20 rounded-xl transition font-bold"><span>📦</span> Barang</a>
+            <a href="supplier.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>🚚</span> Supplier</a>
+            
+            <div class="mt-auto pt-6 border-t border-white/10">
+                <button onclick="handleLogout()" class="flex items-center gap-3 p-3 w-full hover:bg-red-500/20 rounded-xl transition text-white/70 text-left font-bold">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main-content p-8 md:p-12">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h2 class="text-3xl font-extrabold text-[#1B2559]">Data Barang</h2>
+                <p class="text-gray-400 text-sm mt-1">Kelola stok dan pantau pergerakan barang Anda.</p>
+            </div>
+            
+            <div class="relative w-full md:w-80">
+                <span class="absolute inset-y-0 left-4 flex items-center text-gray-400">
+                    <span class="material-icons-round">search</span>
+                </span>
+                <input type="text" id="input-cari" onkeyup="renderData()" placeholder="Cari nama barang..." 
+                    class="w-full bg-white border border-gray-100 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-2 focus:ring-[#5D5FEF] shadow-sm font-medium">
+            </div>
+        </header>
+
+        <div class="bg-white p-6 rounded-[30px] card-shadow mb-8 border border-white">
+            <h3 class="font-bold mb-4 text-[#1B2559] flex items-center gap-2">
+                <span class="material-icons-round text-indigo-500">add_circle</span> Tambah Barang Baru
+            </h3>
+            <form onsubmit="simpanBarang(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input id="nama-barang" type="text" placeholder="Nama Barang" required class="bg-gray-50 border-none rounded-xl p-3.5 outline-none focus:ring-2 focus:ring-[#5D5FEF] transition font-medium">
+                <select id="kategori-barang" required class="bg-gray-50 border-none rounded-xl p-3.5 outline-none focus:ring-2 focus:ring-[#5D5FEF] transition text-gray-500 font-medium"></select>
+                <input id="stok-barang" type="number" placeholder="Stok" required class="bg-gray-50 border-none rounded-xl p-3.5 outline-none focus:ring-2 focus:ring-[#5D5FEF] transition font-medium">
+                <button type="submit" class="bg-[#5D5FEF] text-white rounded-xl font-bold hover:bg-indigo-600 transition shadow-lg shadow-indigo-100">Simpan Barang</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-[32px] card-shadow overflow-hidden border border-white">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50">
+                        <tr class="text-[11px] text-gray-400 uppercase tracking-widest font-bold">
+                            <th class="px-8 py-5">Informasi Produk</th>
+                            <th class="px-8 py-5">Kategori</th>
+                            <th class="px-8 py-5 text-center">Stok</th>
+                            <th class="px-8 py-5 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-barang" class="divide-y divide-gray-50 text-sm font-semibold text-[#1B2559]">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-edit" class="modal fixed inset-0 flex items-center justify-center z-[100] p-4">
+        <div class="modal-overlay absolute inset-0 bg-[#1B2559]/30 backdrop-blur-sm" onclick="tutupModal()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-[32px] shadow-2xl p-10">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                    <span class="material-icons-round">edit</span>
+                </div>
+                <h3 class="text-xl font-bold">Edit Barang</h3>
+            </div>
+            
+            <div class="space-y-4">
+                <input id="edit-id" type="hidden">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 ml-1 uppercase">Nama Barang</label>
+                    <input id="edit-nama" type="text" class="w-full bg-gray-50 rounded-xl p-4 mt-2 outline-none focus:ring-2 focus:ring-[#5D5FEF] border-none font-bold">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 ml-1 uppercase">Kategori</label>
+                        <select id="edit-kategori" class="w-full bg-gray-50 rounded-xl p-4 mt-2 outline-none focus:ring-2 focus:ring-[#5D5FEF] border-none"></select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 ml-1 uppercase">Stok</label>
+                        <input id="edit-stok" type="number" class="w-full bg-gray-50 rounded-xl p-4 mt-2 outline-none focus:ring-2 focus:ring-[#5D5FEF] border-none font-bold">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-6">
+                    <button onclick="tutupModal()" class="flex-1 py-4 text-gray-400 font-bold hover:bg-gray-50 rounded-xl transition">Batal</button>
+                    <button onclick="updateBarang()" class="flex-1 bg-[#5D5FEF] text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-100 transition hover:bg-indigo-600">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. PROTEKSI & LOGOUT ---
+        function checkAuth() {
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+            }
+        }
+        checkAuth(); // Jalankan proteksi seketika
+
+        function handleLogout() {
+            if(confirm("Apakah Anda yakin ingin keluar?")) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('userActive');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // --- 2. LOGIKA DATABASE & RENDER ---
+        function getDB() {
+            return {
+                barang: JSON.parse(localStorage.getItem('barang')) || [],
+                kategori: JSON.parse(localStorage.getItem('kategori')) || []
+            };
+        }
+
+        function renderData() {
+            const { barang, kategori } = getDB();
+            const query = document.getElementById('input-cari').value.toLowerCase();
+            const tbody = document.getElementById('tabel-barang');
+            
+            // Sync Dropdown Kategori (Tambah & Edit)
+            const selectOptions = '<option value="">Pilih Kategori</option>' + 
+                kategori.map(k => `<option value="${k.nama}">${k.nama}</option>`).join('');
+            
+            const catSelect = document.getElementById('kategori-barang');
+            const editCatSelect = document.getElementById('edit-kategori');
+            if(catSelect) catSelect.innerHTML = selectOptions;
+            if(editCatSelect) editCatSelect.innerHTML = selectOptions;
+
+            // Filter Pencarian
+            const filtered = barang.filter(b => b.nama.toLowerCase().includes(query));
+
+            tbody.innerHTML = filtered.length === 0 
+            ? '<tr><td colspan="4" class="py-20 text-center text-gray-400 italic">Data barang tidak ditemukan...</td></tr>'
+            : filtered.map((item) => {
+                const idx = barang.indexOf(item);
+                const isLow = item.stok < 5;
+                return `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-8 py-6">
+                        <div class="font-bold text-[#1B2559] text-base">${item.nama}</div>
+                        <div class="text-[10px] text-gray-400 tracking-wider font-bold">ID: BRG-${1000 + idx}</div>
+                    </td>
+                    <td class="px-8 py-6 text-gray-400 font-medium">${item.kategori || 'Umum'}</td>
+                    <td class="px-8 py-6 text-center">
+                        <span class="${isLow ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'} px-4 py-1.5 rounded-full text-xs font-black">
+                            ${item.stok} UNIT
+                        </span>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <div class="flex justify-end gap-3">
+                            <button onclick="bukaModal(${idx})" class="btn-icon btn-edit" title="Edit">
+                                <span class="material-icons-round text-[18px]">edit</span>
+                            </button>
+                            <button onclick="hapusBarang(${idx})" class="btn-icon btn-delete" title="Hapus">
+                                <span class="material-icons-round text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // --- 3. CRUD FUNCTIONS ---
+        function simpanBarang(e) {
+            e.preventDefault();
+            const { barang } = getDB();
+            barang.push({
+                nama: document.getElementById('nama-barang').value,
+                kategori: document.getElementById('kategori-barang').value,
+                stok: parseInt(document.getElementById('stok-barang').value)
+            });
+            localStorage.setItem('barang', JSON.stringify(barang));
+            e.target.reset();
+            renderData();
+        }
+
+        function hapusBarang(i) {
+            if(confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+                const { barang } = getDB();
+                barang.splice(i, 1);
+                localStorage.setItem('barang', JSON.stringify(barang));
+                renderData();
+            }
+        }
+
+        function bukaModal(i) {
+            const { barang } = getDB();
+            const item = barang[i];
+            document.getElementById('edit-id').value = i;
+            document.getElementById('edit-nama').value = item.nama;
+            document.getElementById('edit-kategori').value = item.kategori;
+            document.getElementById('edit-stok').value = item.stok;
+            document.getElementById('modal-edit').classList.add('active');
+        }
+
+        function tutupModal() {
+            document.getElementById('modal-edit').classList.remove('active');
+        }
+
+        function updateBarang() {
+            const { barang } = getDB();
+            const i = document.getElementById('edit-id').value;
+            barang[i] = {
+                nama: document.getElementById('edit-nama').value,
+                kategori: document.getElementById('edit-kategori').value,
+                stok: parseInt(document.getElementById('edit-stok').value)
+            };
+            localStorage.setItem('barang', JSON.stringify(barang));
+            tutupModal();
+            renderData();
+        }
+
+        // Jalankan render awal
+        renderData();
+    </script>
+</body>
+</html>

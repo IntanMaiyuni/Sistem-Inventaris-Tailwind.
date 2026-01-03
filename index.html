@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InventarisPro - Dashboard & Laporan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F4F7FE; }
+        .card-shadow { box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05); }
+        .main-content { margin-left: 256px; width: calc(100% - 256px); }
+        @media (max-width: 768px) { .main-content { margin-left: 0; width: 100%; } }
+        @media print {
+            aside, .no-print, button, .aksi-kolom { display: none !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; padding: 0 !important; background-color: white; }
+            body { background-color: white; }
+            canvas { max-width: 100% !important; height: auto !important; }
+            .grid { display: block !important; }
+            .grid > div { margin-bottom: 20px; break-inside: avoid; border: 1px solid #eee !important; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        }
+        .print-header { display: none; }
+        canvas { max-height: 250px; width: 100% !important; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <aside class="w-64 bg-[#5D5FEF] text-white fixed h-full p-6 flex flex-col z-50">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="bg-white/20 p-2 rounded-lg text-xl">📦</div>
+            <h1 class="text-xl font-bold tracking-tight">Inventaris</h1>
+        </div>
+        <nav class="space-y-4 flex-1">
+            <a href="index.html" class="flex items-center gap-3 p-3 bg-white/20 rounded-xl transition font-bold"><span>📊</span> Dashboard</a>
+            <a href="kategori.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>📁</span> Kategori</a>
+            <a href="barang.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>📦</span> Barang</a>
+            <a href="supplier.html" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition text-white/70"><span>🚚</span> Supplier</a>
+            
+            <div class="mt-auto pt-6 border-t border-white/10">
+                <button onclick="handleLogout()" class="flex items-center gap-3 p-3 w-full hover:bg-red-500/20 rounded-xl transition text-white/70 text-left font-bold">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main-content p-8 md:p-12 transition-all">
+        <div class="print-header">
+            <h1 class="text-3xl font-bold">LAPORAN INVENTARIS PRO</h1>
+            <p id="print-date"></p>
+        </div>
+
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h2 class="text-2xl font-bold text-[#1B2559]">Analytics Dashboard</h2>
+                <p class="text-sm text-gray-400 no-print">Pantau statistik stok barang secara real-time.</p>
+            </div>
+            <div class="flex items-center gap-3 no-print">
+                <button onclick="window.print()" class="bg-white text-[#1B2559] border border-gray-200 px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-50 transition shadow-sm">
+                    <span>🖨️</span> Cetak Laporan
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-3xl card-shadow flex items-center justify-between border border-gray-50">
+                <div><p class="text-xs text-gray-400 font-medium">Total Barang</p><h4 id="stat-barang" class="text-2xl font-bold text-[#1B2559]">0</h4></div>
+                <div class="bg-blue-50 p-3 rounded-2xl text-xl">📦</div>
+            </div>
+            <div class="bg-white p-6 rounded-3xl card-shadow flex items-center justify-between border border-gray-50">
+                <div><p class="text-xs text-gray-400 font-medium">Total Stok</p><h4 id="stat-stok" class="text-2xl font-bold text-[#1B2559]">0</h4></div>
+                <div class="bg-green-50 p-3 rounded-2xl text-xl">📊</div>
+            </div>
+            <div class="bg-white p-6 rounded-3xl card-shadow flex items-center justify-between border border-gray-50">
+                <div><p class="text-xs text-gray-400 font-medium">Supplier</p><h4 id="stat-supplier" class="text-2xl font-bold text-[#1B2559]">0</h4></div>
+                <div class="bg-orange-50 p-3 rounded-2xl text-xl">🚚</div>
+            </div>
+            <div class="bg-white p-6 rounded-3xl card-shadow flex items-center justify-between border border-gray-50">
+                <div><p class="text-xs text-gray-400 font-medium">Kategori</p><h4 id="stat-kategori" class="text-2xl font-bold text-[#1B2559]">0</h4></div>
+                <div class="bg-purple-50 p-3 rounded-2xl text-xl">📁</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-50">
+                <h3 class="font-bold text-[#1B2559] mb-4 flex items-center gap-2">📈 Grafik Stok Barang</h3>
+                <canvas id="chartStok"></canvas>
+            </div>
+            <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-50">
+                <h3 class="font-bold text-[#1B2559] mb-4 flex items-center gap-2">🍩 Distribusi Kategori</h3>
+                <canvas id="chartKategori"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8">
+            <div class="col-span-12 lg:col-span-4 no-print">
+                <div class="bg-white p-6 rounded-[30px] card-shadow border border-gray-50">
+                    <h3 class="font-bold text-[#1B2559] mb-4">✨ Tambah Cepat</h3>
+                    <div class="space-y-3">
+                        <input id="input-nama-barang" type="text" placeholder="Nama Barang" class="bg-gray-50 rounded-xl p-3 w-full outline-none">
+                        <input id="input-stok-barang" type="number" placeholder="Stok" class="bg-gray-50 rounded-xl p-3 w-full outline-none">
+                        <button onclick="simpanBarang()" class="w-full bg-[#5D5FEF] text-white p-3 rounded-xl font-bold hover:bg-indigo-600 transition">Simpan Barang</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-span-12 lg:col-span-8 bg-white rounded-[30px] card-shadow overflow-hidden border border-gray-50">
+                <div class="p-6 border-b border-gray-50"><h3 class="font-bold text-[#1B2559]">📦 Daftar Barang</h3></div>
+                <div class="p-4 overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-[10px] text-gray-400 uppercase font-bold border-b border-gray-50">
+                                <th class="px-4 py-3">Nama Barang</th>
+                                <th class="px-4 py-3 text-center">Stok</th>
+                                <th class="px-4 py-3 text-right aksi-kolom">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-barang" class="text-sm divide-y divide-gray-50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- 1. AUTH PROTECTION ---
+        function checkAuth() {
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+            }
+        }
+        checkAuth();
+
+        function handleLogout() {
+            if(confirm("Apakah Anda yakin ingin keluar?")) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('userActive');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // --- 2. DASHBOARD LOGIC ---
+        let myBarChart, myPieChart;
+        document.getElementById('print-date').innerText = "Tanggal Cetak: " + new Date().toLocaleString('id-ID');
+
+        function ambilData() {
+            return {
+                barang: JSON.parse(localStorage.getItem('barang')) || [],
+                supplier: JSON.parse(localStorage.getItem('supplier')) || [],
+                kategori: JSON.parse(localStorage.getItem('kategori')) || []
+            };
+        }
+
+        function initCharts() {
+            const ctxStok = document.getElementById('chartStok').getContext('2d');
+            const ctxKat = document.getElementById('chartKategori').getContext('2d');
+
+            myBarChart = new Chart(ctxStok, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Jumlah Stok', data: [], backgroundColor: '#5D5FEF', borderRadius: 8 }] },
+                options: { animation: false, responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            myPieChart = new Chart(ctxKat, {
+                type: 'doughnut',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#5D5FEF', '#FFB155', '#45CB85', '#7239EA', '#F64E60'] }] },
+                options: { animation: false, responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateCharts() {
+            const { barang, kategori } = ambilData();
+            myBarChart.data.labels = barang.slice(-7).map(b => b.nama);
+            myBarChart.data.datasets[0].data = barang.slice(-7).map(b => b.stok);
+            myBarChart.update();
+
+            const labelKat = kategori.map(k => k.nama);
+            const dataKat = labelKat.map(kName => barang.filter(b => b.kategori === kName).length);
+            myPieChart.data.labels = labelKat.length ? labelKat : ['Kosong'];
+            myPieChart.data.datasets[0].data = dataKat.length ? dataKat : [1];
+            myPieChart.update();
+        }
+
+        function renderSemua() {
+            const { barang, supplier, kategori } = ambilData();
+            document.getElementById('stat-barang').innerText = barang.length;
+            document.getElementById('stat-supplier').innerText = supplier.length;
+            document.getElementById('stat-kategori').innerText = kategori.length;
+            document.getElementById('stat-stok').innerText = barang.reduce((sum, item) => sum + parseInt(item.stok || 0), 0);
+
+            const tBarang = document.getElementById('tabel-barang');
+            tBarang.innerHTML = barang.length === 0 
+                ? '<tr><td colspan="3" class="py-10 text-center text-gray-400">Belum ada data</td></tr>'
+                : barang.map((item, index) => `
+                    <tr>
+                        <td class="px-4 py-4 font-semibold text-[#1B2559]">${item.nama}</td>
+                        <td class="px-4 py-4 text-center"><span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-bold">${item.stok} Unit</span></td>
+                        <td class="px-4 py-4 text-right aksi-kolom"><button onclick="hapusBarang(${index})" class="text-red-400 hover:text-red-600 font-bold">Hapus</button></td>
+                    </tr>`).join('');
+            updateCharts();
+        }
+
+        function simpanBarang() {
+            const n = document.getElementById('input-nama-barang');
+            const s = document.getElementById('input-stok-barang');
+            if(n.value && s.value) {
+                let data = ambilData().barang;
+                data.push({nama: n.value, stok: parseInt(s.value)});
+                localStorage.setItem('barang', JSON.stringify(data));
+                n.value = ''; s.value = '';
+                renderSemua();
+            }
+        }
+
+        function hapusBarang(i) {
+            if(confirm('Hapus?')) {
+                let data = ambilData().barang;
+                data.splice(i, 1);
+                localStorage.setItem('barang', JSON.stringify(data));
+                renderSemua();
+            }
+        }
+
+        initCharts();
+        renderSemua();
+    </script>
+</body>
+</html>
