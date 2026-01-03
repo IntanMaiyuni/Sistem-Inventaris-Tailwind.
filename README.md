@@ -1,4 +1,4 @@
-# 📦 InventarisPro - Sistem Manajemen Inventaris Modern
+ini# 📦 InventarisPro - Sistem Manajemen Inventaris Modern
 
 Sistem Inventaris Barang berbasis Web yang dirancang dengan antarmuka modern, bersih, dan responsif menggunakan **Tailwind CSS**. Aplikasi ini memungkinkan pengguna untuk mengelola data barang, kategori, dan supplier secara lokal dengan performa yang cepat.
 
@@ -18,25 +18,6 @@ Sistem Inventaris Barang berbasis Web yang dirancang dengan antarmuka modern, be
 * **Tailwind CSS:** Framework CSS untuk desain antarmuka yang modern.
 * **JavaScript (Vanilla):** Logika aplikasi, manipulasi DOM, dan penyimpanan data.
 * **Google Fonts & Material Icons:** Tipografi 'Inter' & 'Plus Jakarta Sans' serta ikon pendukung.
-
-## 🚀 Cara Menjalankan Proyek
-1.  **Clone Repositori:**
-    ```bash
-    git clone [https://github.com/username-anda/nama-repo.git](https://github.com/username-anda/nama-repo.git)
-    ```
-2.  **Buka File:**
-    Cukup buka file `login.html` di browser pilihan Anda (Chrome, Edge, atau Firefox).
-3.  **Login:**
-    Gunakan akun yang sudah terdaftar di sistem (atau bypass sesuai logika login yang Anda buat).
-
-## 📸 Tampilan Aplikasi
-> 
-*Keterangan: Tampilan Dashboard dengan statistik ringkas dan navigasi sidebar yang elegan.*
-
----
-
-## 📝 Lisensi
-Proyek ini dibuat untuk tujuan pembelajaran dan portofolio. Bebas digunakan dan dikembangkan lebih lanjut.
 
 ---
 **Dibuat oleh Intan Maiyuni**
