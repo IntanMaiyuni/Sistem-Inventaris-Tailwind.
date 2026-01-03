@@ -39,4 +39,4 @@ Sistem Inventaris Barang berbasis Web yang dirancang dengan antarmuka modern, be
 Proyek ini dibuat untuk tujuan pembelajaran dan portofolio. Bebas digunakan dan dikembangkan lebih lanjut.
 
 ---
-**Dibuat dengan ❤️ oleh [Nama Anda]**
+**Dibuat oleh Intan Maiyuni**
