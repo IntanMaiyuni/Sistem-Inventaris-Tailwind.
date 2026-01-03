@@ -1,4 +1,4 @@
-ini# 📦 InventarisPro - Sistem Manajemen Inventaris Modern
+# 📦 InventarisPro - Sistem Manajemen Inventaris Modern
 
 Sistem Inventaris Barang berbasis Web yang dirancang dengan antarmuka modern, bersih, dan responsif menggunakan **Tailwind CSS**. Aplikasi ini memungkinkan pengguna untuk mengelola data barang, kategori, dan supplier secara lokal dengan performa yang cepat.
 
